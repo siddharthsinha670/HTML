@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Boy & Dog Playing Cricket – Realistic SVG Animation</title>
+  <style>
+    :root{
+      --sky1:#bfe8ff; --sky2:#eaf7ff; --sun:#ffd66b; --grass1:#86c56b; --grass2:#6fb755;
+      --pitch:#d1b792; --dirt:#caa87e; --tree:#2e7d32; --trunk:#8d5a3b;
+      --boy-skin:#f0c7a3; --boy-shirt:#2563eb; --boy-pant:#1f2937; --boy-shoe:#111827; 
+      --dog1:#7a4a2b; --dog2:#945e3c; --accent:#ff3b30; --white:#ffffff;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{display:grid;place-items:center;background:linear-gradient(180deg,var(--sky1),var(--sky2) 65%);font-family:system-ui,Segoe UI,Roboto,Arial}
+    .stage{width:min(95vw,1080px);aspect-ratio:16/9;border-radius:28px;overflow:hidden;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.18),inset 0 2px 0 rgba(255,255,255,.6)}
+    .ui{position:absolute;left:14px;top:12px;display:flex;gap:10px;background:rgba(255,255,255,.72);backdrop-filter:blur(6px);padding:8px 12px;border-radius:14px;box-shadow:0 8px 20px rgba(0,0,0,.08)}
+    .ui button{border:0;border-radius:999px;padding:8px 14px;font-weight:600;cursor:pointer;box-shadow:0 6px 12px rgba(0,0,0,.08)}
+    .play{background:#111;color:#fff}
+    .reset{background:#fff;color:#111}
+    .label{position:absolute;right:14px;top:12px;background:rgba(0,0,0,.5);color:#fff;border-radius:12px;padding:6px 10px;font-size:12px}
+    svg{width:100%;height:100%;display:block}
+    .sun{fill:var(--sun)}
+    .cloud{fill:#fff;opacity:.9}
+    .grass{fill:url(#grassGrad)}
+    .pitch{fill:var(--pitch)}
+    .dirt{fill:var(--dirt)}
+    .tree{fill:var(--tree)}
+    .trunk{fill:var(--trunk)}
+    .shadow{fill:rgba(0,0,0,.18)}
+    .ball{fill:var(--accent)}
+    .seam{stroke:#fff;stroke-width:1.4}
+    .boy-skin{fill:var(--boy-skin)}
+    .boy-shirt{fill:var(--boy-shirt)}
+    .boy-pant{fill:var(--boy-pant)}
+    .boy-shoe{fill:var(--boy-shoe)}
+    .dog1{fill:var(--dog1)}
+    .dog2{fill:var(--dog2)}
+  </style>
+</head>
+<body>
+  <div class="stage" aria-label="Realistic SVG of a boy playing cricket with a dog fetching the ball on a ground.">
+    <div class="ui">
+      <button class="play" id="toggle">Pause</button>
+      <button class="reset" id="reset">Restart</button>
+      <span id="time" style="font-variant-numeric:tabular-nums">0.0s</span>
+    </div>
+    <div class="label">7s loop • soundless • keyboard: Space/P</div>
+
+    <svg viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+      <title id="title">Boy and Dog Playing Cricket</title>
+      <desc id="desc">An animated scene: the boy bats a ball, the ball arcs across the ground, the dog chases and fetches it, then returns.</desc>
+
+      <!-- defs -->
+      <defs>
+        <linearGradient id="grassGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--grass1)"/>
+          <stop offset="100%" stop-color="var(--grass2)"/>
+        </linearGradient>
+        <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="1.2"/>
+        </filter>
+      </defs>
+
+      <!-- background -->
+      <rect width="1600" height="900" fill="url(#sky)" opacity="0"/>
+      <circle class="sun" cx="1400" cy="110" r="80"/>
+      <!-- clouds -->
+      <g opacity=".9">
+        <ellipse class="cloud" cx="300" cy="120" rx="90" ry="36"/>
+        <ellipse class="cloud" cx="370" cy="120" rx="60" ry="22"/>
+        <ellipse class="cloud" cx="1180" cy="160" rx="110" ry="40"/>
+        <ellipse class="cloud" cx="1260" cy="160" rx="70" ry="26"/>
+      </g>
+
+      <!-- far trees -->
+      <g opacity=".45">
+        <rect class="trunk" x="150" y="430" width="18" height="200" rx="8"/>
+        <circle class="tree" cx="160" cy="420" r="70"/>
+        <rect class="trunk" x="1320" y="410" width="20" height="220" rx="8"/>
+        <circle class="tree" cx="1330" cy="400" r="80"/>
+        <rect class="trunk" x="900" y="450" width="16" height="180" rx="8"/>
+        <circle class="tree" cx="908" cy="440" r="60"/>
+      </g>
+
+      <!-- ground layers -->
+      <rect class="grass" x="0" y="540" width="1600" height="360"/>
+      <ellipse class="shadow" cx="800" cy="750" rx="620" ry="80"/>
+      <!-- cricket pitch strip -->
+      <rect class="pitch" x="540" y="620" width="520" height="46" rx="10"/>
+      <rect class="dirt" x="540" y="646" width="520" height="6" opacity=".25"/>
+
+      <!-- boy group -->
+      <g id="boy" transform="translate(560,610)">
+        <ellipse class="shadow" cx="0" cy="60" rx="56" ry="14"/>
+        <!-- legs -->
+        <path class="boy-pant" d="M -10 0 l -6 46 l 12 0 Z"/>
+        <path class="boy-pant" d="M 10 0 l 8 46 l -12 0 Z"/>
+        <rect class="boy-shoe" x="-18" y="46" width="22" height="8" rx="3"/>
+        <rect class="boy-shoe" x="8" y="46" width="22" height="8" rx="3"/>
+        <!-- torso -->
+        <rect class="boy-shirt" x="-24" y="-34" width="48" height="40" rx="10"/>
+        <!-- arms -->
+        <rect class="boy-skin" x="-36" y="-24" width="14" height="10" rx="4"/>
+        <rect class="boy-skin" x="22" y="-24" width="14" height="10" rx="4"/>
+        <!-- neck/head -->
+        <rect class="boy-skin" x="-6" y="-44" width="12" height="10" rx="3"/>
+        <circle class="boy-skin" cx="0" cy="-62" r="16"/>
+        <path d="M -14 -70 q 14 -14 28 0" fill="#333"/>
+        <!-- bat (pivot around right hand) -->
+        <g id="bat" transform="translate(32,-18)">
+          <rect x="-6" y="-4" width="12" height="44" rx="4" fill="#deb887"/>
+          <rect x="-6" y="-10" width="12" height="10" rx="2" fill="#8b5a2b"/>
+        </g>
+      </g>
+
+      <!-- dog group -->
+      <g id="dog" transform="translate(730,640)">
+        <ellipse class="shadow" cx="0" cy="26" rx="46" ry="12"/>
+        <ellipse class="dog1" cx="0" cy="0" rx="40" ry="22"/>
+        <ellipse class="dog1" cx="32" cy="-8" rx="16" ry="12"/>
+        <path class="dog2" d="M 44 -18 l 10 -12 l 2 14 Z"/>
+        <circle cx="36" cy="-10" r="2.6" fill="#121212"/>
+        <path class="dog2" d="M -40 -4 q -20 -10 -10 -20 q 20 8 24 18 Z"/>
+        <rect x="20" y="-8" width="12" height="4" rx="2" fill="#2563eb"/>
+      </g>
+
+      <!-- ball -->
+      <g id="ball" transform="translate(600,610)">
+        <circle class="ball" r="10"/>
+        <path class="seam" d="M -7 -6 q 8 6 14 0"/>
+        <path class="seam" d="M -7 6 q 8 -6 14 0"/>
+      </g>
+
+      <!-- running path for dog (invisible) -->
+      <path id="dogPath" d="M 700 650 C 900 610, 1120 600, 1280 640 S 1120 760, 880 720 S 640 700, 620 660" fill="none" stroke="none"/>
+      <!-- ball arc (invisible) -->
+      <path id="ballPathOut" d="M 600 610 C 820 520, 1020 540, 1240 620" fill="none" stroke="none"/>
+      <path id="ballPathBack" d="M 1240 620 C 1060 660, 860 660, 700 640" fill="none" stroke="none"/>
+
+    </svg>
+  </div>
+
+  <script>
+    // Duration per phase
+    const TOTAL = 7000; // 7s loop
+    const SWING_TIME = 800;   // boy swing
+    const BALL_OUT = 1600;    // ball travels forward
+    const DOG_CHASE = 2000;   // dog chase forward
+    const BALL_BACK = 1600;   // dog returns with ball
+    const IDLE = TOTAL - (SWING_TIME + BALL_OUT + DOG_CHASE + BALL_BACK); // brief idle
+
+    const svg = document.querySelector('svg');
+    const boy = document.getElementById('boy');
+    const bat = document.getElementById('bat');
+    const dog = document.getElementById('dog');
+    const ball = document.getElementById('ball');
+    const dogPath = document.getElementById('dogPath');
+    const ballOut = document.getElementById('ballPathOut');
+    const ballBack = document.getElementById('ballPathBack');
+
+    const toggle = document.getElementById('toggle');
+    const resetBtn = document.getElementById('reset');
+    const timeEl = document.getElementById('time');
+
+    const dogLen = dogPath.getTotalLength();
+    const outLen = ballOut.getTotalLength();
+    const backLen = ballBack.getTotalLength();
+
+    let start = performance.now();
+    let playing = true;
+
+    function clamp01(x){ return Math.max(0, Math.min(1, x)); }
+
+    function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
+    function easeInOutCubic(t){ return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3)/2; }
+    function easeOutBack(t){ const c1 = 1.70158, c3 = c1 + 1; return 1 + c3*Math.pow(t-1,3) + c1*Math.pow(t-1,2);} 
+
+    function rotateAround(el, pivotX, pivotY, angleDeg){
+      const t = el.transform.baseVal.consolidate()?.matrix;
+      // fallback translate if no transform
+      const base = el.getAttribute('transform') || 'translate(0,0)';
+      el.setAttribute('transform', `${base.split(' rotate')[0]} rotate(${angleDeg},${pivotX},${pivotY})`);
+    }
+
+    function setBallOn(path, t, hop=0){
+      const L = path.getTotalLength();
+      const p = path.getPointAtLength(L * t);
+      const bounce = Math.sin(t * Math.PI) * hop; // small hop
+      ball.setAttribute('transform', `translate(${p.x},${p.y - bounce})`);
+    }
+
+    function lookAhead(el, path, t){
+      const L = path.getTotalLength();
+      const p = path.getPointAtLength(L * t);
+      const p2 = path.getPointAtLength(L * clamp01(t + 0.01));
+      const a = Math.atan2(p2.y - p.y, p2.x - p.x) * 180/Math.PI;
+      el.setAttribute('transform', `translate(${p.x},${p.y}) rotate(${a})`);
+    }
+
+    function tick(now){
+      if(!playing){ requestAnimationFrame(tick); return; }
+      const elapsed = (now - start) % TOTAL;
+      timeEl.textContent = (elapsed/1000).toFixed(1) + 's';
+
+      let t = elapsed;
+
+      // 1) Boy swing (0..SWING_TIME)
+      if(t <= SWING_TIME){
+        const n = easeOutBack(t / SWING_TIME);
+        // pivot near bat handle (relative to boy group)
+        const boyGlobal = boy.transform.baseVal.consolidate()?.matrix;
+        // Animate bat rotation -45° to +40°
+        const angle = -45 + n * 85;
+        bat.setAttribute('transform', `translate(32,-18) rotate(${angle})`);
+        // Ball stays near boy before strike
+        ball.setAttribute('transform', `translate(${600 + n*5},${610 - n*2})`);
+      }
+      // 2) Ball flies out + dog starts chase
+      else if(t <= SWING_TIME + BALL_OUT){
+        const k = (t - SWING_TIME) / BALL_OUT;
+        const ease = easeOutCubic(k);
+        setBallOn(ballOut, ease, 22);
+        // dog starts chasing from 10% of this phase
+        const dk = clamp01((k - 0.10)/0.90);
+        const dEase = easeInOutCubic(dk);
+        lookAhead(dog, dogPath, dEase * 0.55); // first half of path
+      }
+      // 3) Dog completes chase (without ball visible pickup moment)
+      else if(t <= SWING_TIME + BALL_OUT + DOG_CHASE){
+        const k = (t - SWING_TIME - BALL_OUT) / DOG_CHASE;
+        const dEase = easeInOutCubic(k);
+        lookAhead(dog, dogPath, 0.55 + dEase * 0.45); // to end
+        // ball sticks near end when dog reaches it
+        const stick = clamp01(k*1.8);
+        const endP = ballOut.getPointAtLength(outLen);
+        ball.setAttribute('transform', `translate(${endP.x - stick*6},${endP.y - 4})`);
+      }
+      // 4) Dog returns with ball
+      else if(t <= SWING_TIME + BALL_OUT + DOG_CHASE + BALL_BACK){
+        const k = (t - SWING_TIME - BALL_OUT - DOG_CHASE) / BALL_BACK;
+        const ease = easeInOutCubic(k);
+        lookAhead(dog, ballBack, ease);
+        setBallOn(ballBack, ease, 10);
+      }
+      // 5) Idle / boy pats dog
+      else {
+        const k = (t - SWING_TIME - BALL_OUT - DOG_CHASE - BALL_BACK) / IDLE;
+        // bring ball to boy's side
+        ball.setAttribute('transform', `translate(${620 + Math.sin(k*6)*2},${620 - 6})`);
+        // small tail wag: rotate tail (part of dog path but simple wobble via rotate)
+        const base = dog.getAttribute('transform');
+        dog.setAttribute('transform', base.replace(/ rotate\([^)]*\)/,'') + ` rotate(${Math.sin(k*24)*6})`);
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    // Controls
+    function resume(){ start = performance.now() - parseFloat(timeEl.textContent)*1000; requestAnimationFrame(tick); }
+
+    toggle.addEventListener('click', ()=>{
+      playing = !playing; toggle.textContent = playing ? 'Pause' : 'Play';
+      if(playing) resume();
+    });
+    resetBtn.addEventListener('click', ()=>{ start = performance.now(); if(!playing){ playing = true; toggle.textContent='Pause'; } resume(); });
+
+    // keyboard: Space or P to toggle
+    window.addEventListener('keydown', (e)=>{
+      if(e.code==='Space' || e.key.toLowerCase()==='p'){ e.preventDefault(); toggle.click(); }
+      if(e.key.toLowerCase()==='r'){ resetBtn.click(); }
+    });
+
+    requestAnimationFrame(tick);
+  </script>
+</body>
+</html>

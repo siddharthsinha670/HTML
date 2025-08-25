@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dog Playing with Ball (5s)</title>
+  <style>
+    :root {
+      --sky1: #c9e9ff;
+      --sky2: #f7fbff;
+      --grass: #a8d672;
+      --sun: #ffd36b;
+      --dog: #6b3f2a;
+      --dog-accent: #874f35;
+      --ball: #ff3b30;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: linear-gradient(180deg, var(--sky1), var(--sky2) 60%);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+    .scene {
+      width: min(92vw, 900px);
+      aspect-ratio: 16/9;
+      position: relative;
+      border-radius: 24px;
+      background: radial-gradient(circle at 85% 15%, rgba(255,244,200,.8), transparent 40%);
+      box-shadow: 0 20px 50px rgba(0,0,0,.12), inset 0 2px 0 rgba(255,255,255,.6);
+      overflow: hidden;
+    }
+    .ground {
+      position: absolute; inset: auto 0 0 0; height: 30%;
+      background: linear-gradient(180deg, #bfe39a, var(--grass));
+    }
+    .ui {
+      position: absolute; left: 16px; top: 12px; display: flex; gap: 8px; align-items: center;
+      background: rgba(255,255,255,.7); padding: 8px 12px; border-radius: 14px; backdrop-filter: blur(6px);
+      box-shadow: 0 6px 20px rgba(0,0,0,.08);
+    }
+    button{
+      border: 0; border-radius: 999px; padding: 8px 14px; cursor: pointer; font-weight: 600;
+      box-shadow: 0 4px 10px rgba(0,0,0,.08);
+    }
+    .play { background:#111; color:#fff; }
+    .reset{ background:#fff; color:#111; }
+
+    /* Accessibility hint */
+    .hint { position:absolute; right:16px; top:12px; background:rgba(0,0,0,.5); color:#fff; padding:6px 10px; border-radius:12px; font-size:12px; }
+
+    svg { width: 100%; height: 100%; display: block; }
+    .sun { fill: var(--sun); opacity: .9; }
+
+    /* Dog styling */
+    .dog-body { fill: var(--dog); }
+    .dog-ear, .dog-tail { fill: var(--dog-accent); }
+    .dog-eye { fill: #181818; }
+    .dog-collar { fill: #2563eb; }
+    .ball { fill: var(--ball); }
+    .ball-shine { fill: rgba(255,255,255,.9); }
+
+    .credit { position:absolute; bottom:10px; right:14px; font-size:12px; opacity:.6; }
+  </style>
+</head>
+<body>
+  <div class="scene" aria-label="Animated scene of a dog chasing a ball.">
+    <div class="ui">
+      <button class="play" id="toggle">Pause</button>
+      <button class="reset" id="reset">Restart</button>
+      <span id="time" style="font-variant-numeric:tabular-nums">0.0s</span>
+    </div>
+    <div class="hint">5s loop • soundless</div>
+    <div class="ground"></div>
+
+    <!-- SVG stage -->
+    <svg viewBox="0 0 1600 900" role="img">
+      <!-- Background decor -->
+      <circle class="sun" cx="1360" cy="120" r="80" />
+      <g opacity=".15">
+        <ellipse cx="200" cy="680" rx="260" ry="30"/>
+        <ellipse cx="780" cy="700" rx="320" ry="34"/>
+        <ellipse cx="1320" cy="690" rx="240" ry="28"/>
+      </g>
+
+      <!-- Motion path (invisible) -->
+      <!-- A smooth track across the lawn -->
+      <path id="track" d="M 160 620 C 460 520, 1140 520, 1440 620 S 1180 800, 800 720 S 420 700, 160 620" fill="none" stroke="none" />
+
+      <!-- Ball -->
+      <g id="ball" transform="translate(160,620)">
+        <circle class="ball" r="24"></circle>
+        <ellipse class="ball-shine" rx="10" ry="6" cx="-6" cy="-8"/>
+      </g>
+
+      <!-- Dog (simple friendly silhouette) -->
+      <g id="dog" transform="translate(140,620)">
+        <!-- Shadow -->
+        <ellipse cx="0" cy="26" rx="44" ry="12" fill="rgba(0,0,0,.15)"/>
+        <!-- Body -->
+        <ellipse class="dog-body" cx="0" cy="0" rx="38" ry="22"/>
+        <!-- Head -->
+        <ellipse class="dog-body" cx="36" cy="-10" rx="16" ry="14"/>
+        <!-- Ear -->
+        <path class="dog-ear" d="M 42 -22 L 50 -32 L 46 -12 Z"/>
+        <!-- Tail -->
+        <path class="dog-tail" d="M -38 -6 q -16 -10 -8 -18 q 18 6 22 14 Z"/>
+        <!-- Eye -->
+        <circle class="dog-eye" cx="40" cy="-12" r="2.8"/>
+        <!-- Collar -->
+        <rect class="dog-collar" x="24" y="-8" width="18" height="4" rx="2"/>
+      </g>
+    </svg>
+
+    <div class="credit">5s loop • dog & ball SVG</div>
+  </div>
+
+  <script>
+    // Total duration (5 seconds)
+    const DURATION = 5_000;
+    const svg = document.querySelector('svg');
+    const track = document.getElementById('track');
+    const dog = document.getElementById('dog');
+    const ball = document.getElementById('ball');
+    const toggle = document.getElementById('toggle');
+    const resetBtn = document.getElementById('reset');
+    const timeEl = document.getElementById('time');
+
+    // Path helpers
+    const pathLen = track.getTotalLength();
+
+    let start = performance.now();
+    let playing = true;
+
+    function pointAt(t){
+      const l = t * pathLen;
+      return track.getPointAtLength(l);
+    }
+
+    function orientTowards(el, from, to){
+      const dx = to.x - from.x; const dy = to.y - from.y;
+      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+      el.setAttribute('transform', `translate(${from.x},${from.y}) rotate(${angle})`);
+    }
+
+    function setBall(t){
+      // Ball leads the dog a bit and has a subtle hop
+      const lead = (t + 0.06) % 1;
+      const p = pointAt(lead);
+      const hop = Math.sin(lead * 2 * Math.PI * 2) * 8; // two gentle hops per loop
+      ball.setAttribute('transform', `translate(${p.x},${p.y - hop})`);
+    }
+
+    function setDog(t){
+      const p = pointAt(t);
+      const ahead = pointAt(Math.min(t + 0.01, 1));
+      orientTowards(dog, p, ahead);
+    }
+
+    function tick(now){
+      if(!playing){ requestAnimationFrame(tick); return; }
+      const elapsed = (now - start) % DURATION;
+      const t = elapsed / DURATION; // 0..1
+
+      setBall(t);
+      setDog(t);
+
+      timeEl.textContent = (elapsed/1000).toFixed(1) + 's';
+      requestAnimationFrame(tick);
+    }
+
+    // Controls
+    toggle.addEventListener('click', ()=>{
+      playing = !playing;
+      toggle.textContent = playing ? 'Pause' : 'Play';
+      if(playing){ start = performance.now() - (parseFloat(timeEl.textContent) * 1000); requestAnimationFrame(tick); }
+    });
+    resetBtn.addEventListener('click', ()=>{
+      start = performance.now();
+      if(!playing){ playing = true; toggle.textContent = 'Pause'; requestAnimationFrame(tick); }
+    });
+
+    // Kick off
+    requestAnimationFrame(tick);
+  </script>
+</body>
+</html>

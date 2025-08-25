@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Perfect Circle</title>
+  <style>
+    :root {
+      /* Change this to resize the circle */
+      --size: 200px;
+    }
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      background: #0f172a; /* deep slate */
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: #e5e7eb;
+    }
+    .wrap { text-align: center; }
+
+    /* Solid circle */
+    .circle {
+      width: var(--size);
+      height: var(--size);
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.2), rgba(255,255,255,.05) 40%, rgba(255,255,255,0) 60%),
+                  #22c55e; /* base fill */
+      box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 4px 12px rgba(255,255,255,.18);
+      transition: transform .2s ease, filter .2s ease;
+    }
+    .circle:hover { transform: scale(1.03); filter: brightness(1.05); }
+
+    /* Optional: outline-only variant */
+    .ring {
+      width: var(--size);
+      height: var(--size);
+      border-radius: 50%;
+      border: 10px solid #38bdf8; /* change thickness/color as you like */
+      box-shadow: 0 8px 24px rgba(0,0,0,.3);
+    }
+
+    /* Small helper layout */
+    .grid { display: grid; gap: 24px; }
+
+    button {
+      cursor: pointer;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 0;
+      background: #334155;
+      color: #e5e7eb;
+      font-weight: 600;
+    }
+    button:active { transform: translateY(1px); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="grid">
+      <!-- Solid circle -->
+      <div class="circle" id="circle" title="Hover me" aria-label="Decorative circle"></div>
+
+      <!-- Outline circle (uncomment if you want it visible) -->
+      <!-- <div class="ring" aria-label="Decorative ring"></div> -->
+
+      <div>
+        <button id="toggle">Toggle Fill Color</button>
+      </div>
+      <p>Tip: change <code>--size</code> in <code>:root</code> to resize the circle.</p>
+    </div>
+  </div>
+
+  <script>
+    // Simple color toggle for fun
+    const btn = document.getElementById('toggle');
+    const c = document.getElementById('circle');
+    let green = true;
+    btn.addEventListener('click', () => {
+      green = !green;
+      c.style.background = green
+        ? 'radial-gradient(circle at 35% 35%, rgba(255,255,255,.2), rgba(255,255,255,.05) 40%, rgba(255,255,255,0) 60%), #22c55e'
+        : 'radial-gradient(circle at 35% 35%, rgba(255,255,255,.2), rgba(255,255,255,.05) 40%, rgba(255,255,255,0) 60%), #ef4444';
+    });
+  </script>
+
+  <!-- BONUS: Pure SVG circle option (copy just this into your HTML where needed)
+  <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="SVG circle">
+    <circle cx="100" cy="100" r="95" fill="#22c55e" />
+  </svg>
+  -->
+</body>
+</html>
