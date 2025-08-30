@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Siddharth's File Manager</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+      background: #f4f6f9;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      background: #1e1e2f;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+    .sidebar h2 {
+      margin-bottom: 30px;
+      font-size: 20px;
+      text-align: center;
+    }
+    .sidebar a {
+      color: #bbb;
+      text-decoration: none;
+      margin: 12px 0;
+      display: block;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: 0.3s;
+    }
+    .sidebar a:hover {
+      background: #343450;
+      color: #fff;
+    }
+
+    /* Main content */
+    .content {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .section {
+      margin-bottom: 40px;
+    }
+    .section h2 {
+      margin-bottom: 15px;
+      color: #444;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 5px;
+    }
+
+    /* File gallery */
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .gallery img, 
+    .gallery iframe {
+      max-width: 200px;
+      height: auto;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #fff;
+      padding: 5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .file-link {
+      display: inline-block;
+      background: #1e88e5;
+      color: #fff;
+      padding: 8px 14px;
+      margin: 5px 0;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+    .file-link:hover {
+      background: #0d47a1;
+    }
+
+    /* Upload */
+    .upload-box {
+      border: 2px dashed #bbb;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      background: #fff;
+    }
+    .upload-box input {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Siddharth</h2>
+    <a href="#images">📷 Images</a>
+    <a href="#pdfs">📄 PDFs</a>
+    <a href="#docs">📝 Documents</a>
+    <a href="#files">📦 Other Files</a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content">
+    <h1>Siddharth's File Manager</h1>
+
+    <!-- Upload -->
+    <div class="upload-box">
+      <h3>Upload a File</h3>
+      <input type="file" id="fileInput">
+      <button onclick="uploadFile()">Upload</button>
+    </div>
+
+    <!-- Images -->
+    <div class="section" id="images">
+      <h2>📷 Images</h2>
+      <div class="gallery" id="imageGallery"></div>
+    </div>
+
+    <!-- PDFs -->
+    <div class="section" id="pdfs">
+      <h2>📄 PDFs</h2>
+      <div class="gallery" id="pdfGallery"></div>
+    </div>
+
+    <!-- Docs -->
+    <div class="section" id="docs">
+      <h2>📝 Documents</h2>
+      <div id="docGallery"></div>
+    </div>
+
+    <!-- Other Files -->
+    <div class="section" id="files">
+      <h2>📦 Other Files</h2>
+      <div id="otherGallery"></div>
+    </div>
+  </div>
+
+  <script>
+    // Load stored files from localStorage
+    let files = JSON.parse(localStorage.getItem("siddharthFiles")) || [];
+
+    function displayFiles() {
+      document.getElementById("imageGallery").innerHTML = "";
+      document.getElementById("pdfGallery").innerHTML = "";
+      document.getElementById("docGallery").innerHTML = "";
+      document.getElementById("otherGallery").innerHTML = "";
+
+      files.forEach(file => {
+        if (file.type.startsWith("image/")) {
+          document.getElementById("imageGallery").innerHTML += 
+            `<img src="${file.data}" alt="Image">`;
+        } else if (file.type === "application/pdf") {
+          document.getElementById("pdfGallery").innerHTML += 
+            `<iframe src="${file.data}" width="200" height="250"></iframe>`;
+        } else if (file.name.endsWith(".doc") || file.name.endsWith(".docx")) {
+          document.getElementById("docGallery").innerHTML += 
+            `<a href="${file.data}" class="file-link" download="${file.name}">${file.name}</a><br>`;
+        } else {
+          document.getElementById("otherGallery").innerHTML += 
+            `<a href="${file.data}" class="file-link" download="${file.name}">${file.name}</a><br>`;
+        }
+      });
+    }
+
+    function uploadFile() {
+      const input = document.getElementById("fileInput");
+      const file = input.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        files.push({ name: file.name, type: file.type, data: e.target.result });
+        localStorage.setItem("siddharthFiles", JSON.stringify(files));
+        displayFiles();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    displayFiles();
+  </script>
+</body>
+</html>
