@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>HabitMaster X — Siddharth Sinha</title>
+<style>
+  :root{
+    --bg1:#071024; --bg2:#0b1220;
+    --glass: rgba(255,255,255,0.04);
+    --muted:#9fb0c8;
+    --accent1:#06b6d4;
+    --accent2:#7c3aed;
+    --success:#10b981;
+    --danger:#ef4444;
+  }
+  *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#eaf6ff}
+  .wrap{max-width:1100px;margin:24px auto;padding:16px;display:grid;grid-template-columns:1fr 380px;gap:18px;align-items:start}
+  @media(max-width:980px){.wrap{grid-template-columns:1fr;padding:12px}}
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent2),var(--accent1));display:flex;align-items:center;justify-content:center;font-weight:800;box-shadow:0 12px 30px rgba(2,6,23,0.6)}
+  .brand h1{margin:0;font-size:20px}
+  .brand p{margin:0;font-size:12px;color:var(--muted)}
+  .controls{display:flex;gap:8px;align-items:center}
+  .btn{background:linear-gradient(90deg,var(--accent2),var(--accent1));color:white;padding:8px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:700}
+  .ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:7px 10px;border-radius:10px;color:var(--muted);cursor:pointer}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.02);box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+  .left .card + .card{margin-top:12px}
+  /* add form */
+  .add-row{display:flex;gap:8px;align-items:center}
+  input[type="text"]{flex:1;background:transparent;border:1px solid rgba(255,255,255,0.04);color:#eaf6ff;padding:8px;border-radius:10px}
+  .meta{display:flex;gap:8px;align-items:center;margin-top:10px}
+  .emoji{width:44px;height:44px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;font-size:18px}
+  .color-swatch{width:28px;height:28px;border-radius:6px;border:2px solid transparent;cursor:pointer}
+  .color-swatch.active{outline:3px solid rgba(255,255,255,0.05)}
+  /* progress */
+  .progress-head{display:flex;justify-content:space-between;align-items:center}
+  .pct{font-weight:800;color:var(--accent1)}
+  .bar-bg{background:rgba(255,255,255,0.03);height:12px;border-radius:999px;overflow:hidden;margin-top:10px}
+  .bar-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent1));width:0%;transition:width 600ms cubic-bezier(.2,.9,.3,1)}
+  /* list */
+  .habit-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+  .habit-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border-left:6px solid var(--accent);transition:transform .12s, box-shadow .12s}
+  .habit-item:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(2,6,23,0.6)}
+  .left-block{display:flex;gap:10px;align-items:center}
+  .check{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:all .18s}
+  .check.done{background:linear-gradient(90deg,var(--success),#06b6d4);color:#012;box-shadow:0 8px 18px rgba(16,185,129,0.08)}
+  .meta-title strong{font-size:15px}
+  .sub{font-size:12px;color:var(--muted);margin-top:4px}
+  .actions{display:flex;gap:8px;align-items:center}
+  .inline-input{background:transparent;border:none;border-bottom:1px dashed rgba(255,255,255,0.06);color:#eaf6ff;padding:4px;min-width:120px}
+  .badge{background:linear-gradient(90deg,#ffd166,#ff8fab);padding:6px 8px;border-radius:999px;font-weight:700;color:#2b0a05;font-size:12px}
+  /* right */
+  .stat-grid{display:flex;gap:8px;margin-top:8px}
+  .stat{flex:1;background:var(--glass);padding:10px;border-radius:10px;text-align:center}
+  .num{font-weight:800;font-size:20px}
+  .lbl{font-size:12px;color:var(--muted)}
+  canvas.spark{width:100%;height:80px;display:block;margin-top:8px;border-radius:8px}
+  /* tic tac toe */
+  .ttt{display:flex;flex-direction:column;gap:10px;align-items:center}
+  .board{width:260px;height:260px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:8px}
+  .cell{background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center;font-size:44px;border-radius:12px;cursor:pointer;transition:transform .12s, box-shadow .12s}
+  .cell:hover{transform:translateY(-4px);box-shadow:0 8px 18px rgba(0,0,0,0.6)}
+  .cell.win{box-shadow:0 10px 30px rgba(255,215,100,0.18);transform:scale(1.04)}
+  .small{font-size:13px;color:var(--muted)}
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:28px;background:rgba(0,0,0,0.6);padding:10px 14px;border-radius:10px;color:#fff}
+  footer{margin-top:10px;text-align:center;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="left">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="brand">
+          <div class="logo">SS</div>
+          <div>
+            <h1>HabitMaster X</h1>
+            <p>By <strong>Siddharth Sinha</strong> — track, train, win.</p>
+          </div>
+        </div>
+        <div class="controls">
+          <button class="ghost" id="exportBtn">Export</button>
+          <label class="ghost file">Import
+            <input id="importFile" type="file" accept="application/json" />
+          </label>
+          <button class="ghost" id="clearAllBtn">Clear</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <form id="addForm">
+          <div class="add-row">
+            <input id="habitName" type="text" placeholder="Add habit (e.g., Read 30 min)" />
+            <button class="btn" type="submit">Add</button>
+          </div>
+          <div class="meta">
+            <div class="emoji" id="emojiInput" contenteditable="true" title="Emoji (optional)">⚡</div>
+            <div style="display:flex;gap:6px">
+              <button type="button" class="color-swatch" style="background:#06b6d4" data-color="#06b6d4"></button>
+              <button type="button" class="color-swatch active" style="background:#7c3aed" data-color="#7c3aed"></button>
+              <button type="button" class="color-swatch" style="background:#ef4444" data-color="#ef4444"></button>
+              <button type="button" class="color-swatch" style="background:#f59e0b" data-color="#f59e0b"></button>
+              <button type="button" class="color-swatch" style="background:#10b981" data-color="#10b981"></button>
+            </div>
+            <div style="margin-left:auto;color:var(--muted);font-size:13px">
+              <div>Today: <strong id="todayKey"></strong></div>
+              <div style="margin-top:6px"><span id="coinsView">Coins: 0</span></div>
+            </div>
+          </div>
+        </form>
+
+        <div style="margin-top:12px">
+          <div class="progress-head">
+            <h3 style="margin:0">Today's progress</h3>
+            <div class="pct" id="percentView">0%</div>
+          </div>
+          <div class="bar-bg"><div class="bar-fill" id="barFill"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:8px">
+            <small class="small" id="doneView">0 / 0 done</small>
+            <small class="small" id="streakSumView">Total streaks: 0</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0">Habits</h3>
+        <div class="habit-list" id="habitList"></div>
+      </div>
+
+    </div>
+
+    <aside class="right">
+      <div class="card">
+        <h3 style="margin-top:0">Analytics</h3>
+        <div class="stat-grid">
+          <div class="stat"><div class="num" id="numHabits">0</div><div class="lbl">Habits</div></div>
+          <div class="stat"><div class="num" id="avg7">0%</div><div class="lbl">7-day avg</div></div>
+          <div class="stat"><div class="num" id="sumStreaks">0</div><div class="lbl">Total streaks</div></div>
+        </div>
+        <canvas id="spark" class="spark"></canvas>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button class="ghost" id="resetHistory">Reset History</button>
+          <button class="ghost" id="addDemo">Add Demo</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3 style="margin-top:0">Tic-Tac-Toe — Play (2 players)</h3>
+        <div class="ttt">
+          <div class="small" id="tttTurn">Turn: X</div>
+          <div class="board" id="tttBoard"></div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn" id="tttRestart">Restart</button>
+            <button class="ghost" id="tttResetStats">Reset Scores</button>
+          </div>
+          <div style="margin-top:8px" class="small">Score — X: <span id="scoreX">0</span> | O: <span id="scoreO">0</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3 style="margin-top:0">About</h3>
+        <div class="small">Made for <strong>Siddharth Sinha</strong> — show on Snipzzen. Data saved locally in your browser.</div>
+        <div style="margin-top:8px"><small class="small">Tip: Export to backup, Import to restore.</small></div>
+      </div>
+    </aside>
+  </div>
+
+  <div id="toast" class="toast" style="display:none"></div>
+
+<script>
+(function(){
+  /* ---------- Utilities ---------- */
+  const LS_KEY = 'habitmaster_siddharth_v1';
+  function todayKey(d = new Date()){ return d.toISOString().slice(0,10); }
+  function uid(){ return 'id-'+Math.random().toString(36).slice(2,9); }
+  function load(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)) || {} }catch(e){return {}} }
+  function save(data){ try{ localStorage.setItem(LS_KEY, JSON.stringify(data)) }catch(e){console.error(e)} }
+  function toast(msg, t=1600){ const el = document.getElementById('toast'); el.textContent = msg; el.style.display='block'; setTimeout(()=> el.style.display='none', t) }
+
+  /* ---------- State ---------- */
+  const raw = load();
+  let state = {
+    habits: raw.habits || [],
+    coins: raw.coins || 0,
+    ttt: raw.ttt || {scoreX:0, scoreO:0}
+  };
+
+  /* ---------- DOM refs ---------- */
+  const todayEl = document.getElementById('todayKey');
+  const form = document.getElementById('addForm');
+  const nameInput = document.getElementById('habitName');
+  const emojiInput = document.getElementById('emojiInput');
+  const colorButtons = document.querySelectorAll('.color-swatch');
+  let selectedColor = '#7c3aed';
+  const habitList = document.getElementById('habitList');
+  const percentView = document.getElementById('percentView');
+  const barFill = document.getElementById('barFill');
+  const doneView = document.getElementById('doneView');
+  const streakSumView = document.getElementById('streakSumView');
+  const numHabits = document.getElementById('numHabits');
+  const avg7 = document.getElementById('avg7');
+  const sumStreaks = document.getElementById('sumStreaks');
+  const spark = document.getElementById('spark');
+  const exportBtn = document.getElementById('exportBtn');
+  const importFile = document.getElementById('importFile');
+  const clearAllBtn = document.getElementById('clearAllBtn');
+  const resetHistoryBtn = document.getElementById('resetHistory');
+  const addDemoBtn = document.getElementById('addDemo');
+  const coinsView = document.getElementById('coinsView');
+
+  /* ---------- Init ---------- */
+  todayEl.textContent = todayKey();
+  colorButtons.forEach(b => b.addEventListener('click', ()=> { colorButtons.forEach(x=>x.classList.remove('active')); b.classList.add('active'); selectedColor = b.dataset.color; }));
+
+  /* ---------- Habit logic ---------- */
+  function ensureHabitStructure(){
+    state.habits = state.habits.map(h => ({
+      id: h.id || uid(),
+      name: h.name || 'Untitled',
+      emoji: h.emoji || '⚡',
+      color: h.color || '#7c3aed',
+      history: h.history || {},
+      streak: h.streak || 0,
+      createdAt: h.createdAt || new Date().toISOString()
+    }));
+  }
+  ensureHabitStructure();
+
+  function computeStreak(history={}, ref = todayKey()){
+    let s = 0; let d = new Date(ref);
+    while(true){
+      const k = d.toISOString().slice(0,10);
+      if(history[k]){ s++; d.setDate(d.getDate()-1); } else break;
+    }
+    return s;
+  }
+
+  function addHabit(name, emoji, color){
+    const h = { id: uid(), name, emoji: emoji || '⚡', color: color || selectedColor, history: {}, streak: 0, createdAt: new Date().toISOString() };
+    state.habits.unshift(h);
+    save(state); renderAll(); toast('Habit added');
+  }
+
+  function deleteHabit(id){
+    if(!confirm('Delete this habit?')) return;
+    state.habits = state.habits.filter(h => h.id !== id);
+    save(state); renderAll(); toast('Habit deleted');
+  }
+
+  function editHabit(id, patch){
+    state.habits = state.habits.map(h => h.id===id ? {...h, ...patch} : h);
+    save(state); renderAll(); toast('Edit saved');
+  }
+
+  function toggleDone(id, dateKey = todayKey()){
+    state.habits = state.habits.map(h => {
+      if(h.id !== id) return h;
+      const hist = {...h.history};
+      if(hist[dateKey]){ delete hist[dateKey]; }
+      else { hist[dateKey] = true; }
+      const newStreak = computeStreak(hist, todayKey());
+      return {...h, history: hist, streak: newStreak};
+    });
+    // reward coins when marking done today (only when newly marked)
+    const h = state.habits.find(x => x.id === id);
+    // determine if we just set today to true
+    if(h && h.history && h.history[todayKey()]) state.coins = (state.coins || 0) + 1;
+    save(state); renderAll();
+  }
+
+  /* ---------- Analytics / render ---------- */
+  function getTodaysDone(dateKey = todayKey()){
+    return state.habits.filter(h => h.history && h.history[dateKey]).length;
+  }
+  function renderAll(){
+    ensureHabitStructure();
+    // list
+    habitList.innerHTML = '';
+    state.habits.forEach(h => {
+      const el = document.createElement('div');
+      el.className = 'habit-item';
+      el.style.borderLeftColor = h.color;
+      el.innerHTML = `
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="check ${h.history && h.history[todayKey()] ? 'done':''}" data-id="${h.id}">${h.history && h.history[todayKey()] ? '✓' : ''}</button>
+          <div style="display:flex;flex-direction:column">
+            <div style="display:flex;gap:10px;align-items:center">
+              <div style="font-size:20px">${h.emoji}</div>
+              <strong>${escapeHtml(h.name)}</strong>
+            </div>
+            <div class="sub">Streak: <span style="font-weight:800">${h.streak||0} 🔥</span> · ${new Date(h.createdAt).toLocaleDateString()}</div>
+          </div>
+        </div>
+        <div class="actions">
+          ${getMilestone(h) ? `<div class="badge">${getMilestone(h)}</div>` : ''}
+          <button class="ghost editBtn" data-id="${h.id}">Edit</button>
+          <button class="ghost delBtn" data-id="${h.id}">Delete</button>
+        </div>
+      `;
+      habitList.appendChild(el);
+    });
+
+    // wire buttons
+    document.querySelectorAll('.check').forEach(btn => btn.addEventListener('click', e => {
+      const id = e.currentTarget.dataset.id; toggleDone(id);
+    }));
+    document.querySelectorAll('.delBtn').forEach(btn => btn.addEventListener('click', e => {
+      const id = e.currentTarget.dataset.id; deleteHabit(id);
+    }));
+    document.querySelectorAll('.editBtn').forEach(btn => btn.addEventListener('click', e=>{
+      const id = e.currentTarget.dataset.id;
+      const h = state.habits.find(x=>x.id===id);
+      if(!h) return;
+      const name = prompt('Edit habit name', h.name);
+      if(name !== null) editHabit(id, {name: name.trim()});
+    }));
+
+    // progress + stats
+    const total = state.habits.length;
+    const todayDone = getTodaysDone();
+    const pct = total === 0 ? 0 : Math.round((todayDone/total)*100);
+    percentView.textContent = pct + '%';
+    barFill.style.width = pct + '%';
+    doneView.textContent = `${todayDone} / ${total} done`;
+    streakSumView.textContent = `Total streaks: ${state.habits.reduce((s,h)=>s+(h.streak||0),0)}`;
+
+    numHabits.textContent = total;
+    const trend = compute7DayTrend();
+    avg7.textContent = Math.round(trend.reduce((s,x)=>s+x,0)/(trend.length || 1)) + '%';
+    sumStreaks.textContent = state.habits.reduce((s,h)=>s+(h.streak||0),0);
+    coinsView.textContent = 'Coins: ' + (state.coins || 0);
+
+    drawSparkline(spark, trend, state.habits[0] ? (state.habits[0].color || '#06b6d4') : '#06b6d4');
+    save(state);
+  }
+
+  function compute7DayTrend(){
+    const arr = []; const now = new Date();
+    for(let i=6;i>=0;i--){
+      const d = new Date(now); d.setDate(now.getDate()-i);
+      const k = d.toISOString().slice(0,10);
+      const done = state.habits.filter(h => h.history && h.history[k]).length;
+      arr.push(state.habits.length ? Math.round((done/state.habits.length)*100) : 0);
+    }
+    return arr;
+  }
+
+  function getMilestone(h){
+    const s = h.streak || 0;
+    if(s>=60) return 'Legend 60';
+    if(s>=30) return 'Pro 30';
+    if(s>=7) return '7-day';
+    return null;
+  }
+
+  /* ---------- Sparkline drawing ---------- */
+  function drawSparkline(canvas, data, color="#06b6d4") {
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width = canvas.clientWidth * devicePixelRatio;
+    const h = canvas.height = canvas.clientHeight * devicePixelRatio;
+    ctx.clearRect(0,0,w,h);
+    if(!data || data.length===0) return;
+    const pad = 8 * devicePixelRatio;
+    const pts = data.map((v,i)=> {
+      const x = pad + (i/(data.length-1||1))*(w-2*pad);
+      const y = h - pad - (v/100)*(h-2*pad);
+      return {x,y};
+    });
+    // fill area
+    const grad = ctx.createLinearGradient(0,0,0,h);
+    grad.addColorStop(0, color);
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+    for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.lineTo(w-pad, h-pad); ctx.lineTo(pad,h-pad); ctx.closePath();
+    ctx.fillStyle = grad; ctx.globalAlpha = 0.08; ctx.fill(); ctx.globalAlpha = 1;
+    // line
+    ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+    for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.strokeStyle = color; ctx.lineWidth = Math.max(2, devicePixelRatio); ctx.stroke();
+    // dots
+    for(let p of pts){ ctx.beginPath(); ctx.arc(p.x,p.y,Math.max(1.6, devicePixelRatio),0,Math.PI*2); ctx.fillStyle=color; ctx.fill(); }
+  }
+
+  /* ---------- Export / Import / Clear ---------- */
+  exportBtn.addEventListener('click', ()=> {
+    const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'habitmaster_backup.json'; a.click(); URL.revokeObjectURL(url);
+  });
+  importFile.addEventListener('change', (e)=> {
+    const f = e.target.files[0]; if(!f) return;
+    const r = new FileReader(); r.onload = ev => {
+      try{
+        const data = JSON.parse(ev.target.result);
+        if(!data || !Array.isArray(data.habits)) throw new Error('Invalid file');
+        state.habits = data.habits; state.coins = data.coins || 0; state.ttt = data.ttt || state.ttt || {scoreX:0,scoreO:0};
+        save(state); renderAll(); toast('Imported');
+      }catch(err){ alert('Invalid JSON file.'); }
+    }; r.readAsText(f);
+  });
+  clearAllBtn.addEventListener('click', ()=> {
+    if(!confirm('Clear all data? This will remove habits & scores.')) return;
+    state = {habits:[], coins:0, ttt:{scoreX:0,scoreO:0}}; save(state); renderAll(); toast('All cleared');
+  });
+
+  resetHistoryBtn.addEventListener('click', ()=> {
+    if(!confirm('Reset history for all habits?')) return;
+    state.habits = state.habits.map(h => ({...h, history:{}, streak:0})); save(state); renderAll(); toast('History reset');
+  });
+
+  addDemoBtn.addEventListener('click', ()=> {
+    addHabit('Drink Water', '💧', '#06b6d4');
+  });
+
+  /* ---------- Add form ---------- */
+  form.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const name = nameInput.value.trim();
+    const emoji = emojiInput.textContent.trim() || '⚡';
+    if(!name) { toast('Please enter a habit name'); return; }
+    addHabit(name, emoji, selectedColor);
+    nameInput.value = '';
+  });
+
+  /* ---------- Helpers ---------- */
+  function escapeHtml(str){ return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
+
+  /* ---------- Tic Tac Toe ---------- */
+  const boardEl = document.getElementById('tttBoard');
+  const tttTurnEl = document.getElementById('tttTurn');
+  const scoreXEl = document.getElementById('scoreX');
+  const scoreOEl = document.getElementById('scoreO');
+  const tttRestart = document.getElementById('tttRestart');
+  const tttResetStats = document.getElementById('tttResetStats');
+
+  let tttState = {
+    board: Array(9).fill(null),
+    turn: 'X',
+    running: true,
+    scoreX: state.ttt?.scoreX || 0,
+    scoreO: state.ttt?.scoreO || 0
+  };
+
+  function renderBoard(){
+    boardEl.innerHTML = '';
+    tttState.board.forEach((cell, idx) => {
+      const c = document.createElement('div');
+      c.className = 'cell';
+      c.dataset.idx = idx;
+      c.innerHTML = cell ? escapeHtml(cell) : '';
+      c.addEventListener('click', ()=> handleCellClick(idx));
+      boardEl.appendChild(c);
+    });
+    tttTurnEl.textContent = 'Turn: ' + tttState.turn;
+    scoreXEl.textContent = tttState.scoreX;
+    scoreOEl.textContent = tttState.scoreO;
+  }
+
+  function handleCellClick(idx){
+    if(!tttState.running) return;
+    if(tttState.board[idx]) return;
+    tttState.board[idx] = tttState.turn;
+    // animate cell
+    const cell = boardEl.querySelector(`.cell[data-idx="${idx}"]`);
+    if(cell){ cell.style.transform = 'scale(0.9)'; setTimeout(()=> cell.style.transform='scale(1)', 80); }
+    const winner = checkWin(tttState.board);
+    if(winner){
+      tttState.running = false;
+      // highlight winning cells
+      const winCells = winner.cells || [];
+      winCells.forEach(i => {
+        const el = boardEl.querySelector(`.cell[data-idx="${i}"]`); if(el) el.classList.add('win');
+      });
+      if(winner.player === 'X'){ tttState.scoreX++; state.ttt = state.ttt || {}; state.ttt.scoreX = tttState.scoreX; toast('X wins!'); playWinSound(); }
+      else { tttState.scoreO++; state.ttt = state.ttt || {}; state.ttt.scoreO = tttState.scoreO; toast('O wins!'); playWinSound(); }
+      save(state);
+      renderBoard();
+      return;
+    }
+    if(tttState.board.every(Boolean)){
+      tttState.running = false; toast('Draw!'); renderBoard(); return;
+    }
+    // switch turn
+    tttState.turn = tttState.turn === 'X' ? 'O' : 'X';
+    renderBoard();
+  }
+
+  function checkWin(b){
+    const lines = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+    for(const l of lines){
+      const [a,b1,c] = l;
+      if(tttState.board[a] && tttState.board[a] === tttState.board[b1] && tttState.board[a] === tttState.board[c]){
+        return {player: tttState.board[a], cells:l};
+      }
+    }
+    return null;
+  }
+
+  function restartTTT(){
+    tttState.board = Array(9).fill(null); tttState.turn = 'X'; tttState.running = true; renderBoard();
+  }
+  tttRestart.addEventListener('click', ()=> restartTTT());
+  tttResetStats.addEventListener('click', ()=> { if(!confirm('Reset TTT scores?')) return; tttState.scoreX=0; tttState.scoreO=0; state.ttt = {scoreX:0,scoreO:0}; save(state); renderBoard(); });
+
+  /* ---------- Sounds ---------- */
+  function playWinSound(){
+    try{
+      const ctx = new (window.AudioContext||window.webkitAudioContext)();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = 880;
+      g.gain.value = 0.001;
+      o.connect(g); g.connect(ctx.destination);
+      o.start();
+      g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.01);
+      setTimeout(()=> { g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.25); o.stop(ctx.currentTime + 0.3); }, 250);
+    }catch(e){}
+  }
+
+  /* ---------- Helpers ---------- */
+  function escapeHtml(str){ return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
+
+  /* ---------- Initialization ---------- */
+  renderAll();
+  renderBoard();
+
+  // Expose a periodic auto-save to ensure state persisted
+  setInterval(()=> save(state), 5000);
+
+  // small API for manual interactions
+  window.HabitMaster = { state, addHabit, toggleDone, editHabit, deleteHabit, restartTTT };
+
+})();
+</script>
+</body>
+</html>
