@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhoneGuard — Caller Reputation Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #05070f;
+  --surface: #0c0f1e;
+  --surface2: #131729;
+  --border: rgba(255,255,255,0.07);
+  --accent: #4f8ef7;
+  --accent2: #7c5cfc;
+  --green: #22d07a;
+  --red: #ff4d6d;
+  --orange: #ff9800;
+  --yellow: #ffd166;
+  --gray: #6b7280;
+  --text: #f0f2ff;
+  --text2: #737c96;
+  --text3: #4a5568;
+  --glow: rgba(79,142,247,0.15);
+  --glow2: rgba(124,92,252,0.12);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Background ── */
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(79,142,247,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79,142,247,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.bg-glow1 {
+  position: fixed; top: -200px; left: -200px; width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(79,142,247,0.08) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+.bg-glow2 {
+  position: fixed; bottom: -200px; right: -200px; width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(124,92,252,0.08) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+
+/* ── Layout ── */
+.container { max-width: 900px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+/* ── Nav ── */
+nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 0; border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(5,7,15,0.85); backdrop-filter: blur(20px);
+}
+.nav-inner { max-width: 900px; margin: 0 auto; padding: 0 20px; width: 100%; display: flex; align-items: center; justify-content: space-between; }
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.logo-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.logo-text { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; color: var(--text); }
+.logo-text span { color: var(--accent); }
+.nav-badge {
+  font-size: 11px; background: rgba(79,142,247,0.1); border: 1px solid rgba(79,142,247,0.2);
+  color: var(--accent); padding: 4px 12px; border-radius: 20px; font-weight: 600;
+}
+
+/* ── Hero ── */
+.hero {
+  text-align: center; padding: 80px 0 60px;
+}
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent); background: rgba(79,142,247,0.08);
+  border: 1px solid rgba(79,142,247,0.15); padding: 6px 16px; border-radius: 20px; margin-bottom: 24px;
+}
+.hero h1 {
+  font-family: 'Syne', sans-serif; font-size: clamp(2.4rem, 6vw, 3.8rem); font-weight: 800;
+  line-height: 1.1; margin-bottom: 18px;
+  background: linear-gradient(135deg, #f0f2ff 0%, #8892b0 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero h1 span {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero p { color: var(--text2); font-size: 1.05rem; max-width: 520px; margin: 0 auto 48px; line-height: 1.7; }
+
+/* ── Search Box ── */
+.search-wrapper {
+  max-width: 620px; margin: 0 auto;
+}
+.search-box {
+  display: flex; align-items: center;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 14px; overflow: hidden; transition: border-color 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+.search-box:focus-within {
+  border-color: rgba(79,142,247,0.5);
+  box-shadow: 0 0 0 4px rgba(79,142,247,0.08), 0 8px 32px rgba(0,0,0,0.3);
+}
+.search-flag { padding: 0 4px 0 18px; font-size: 22px; }
+.search-input {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 1.05rem; font-family: 'DM Sans', sans-serif; font-weight: 500;
+  color: var(--text); padding: 18px 12px;
+  placeholder-color: var(--text3);
+}
+.search-input::placeholder { color: var(--text3); }
+.search-btn {
+  margin: 6px; padding: 12px 24px; border-radius: 10px; border: none; cursor: pointer;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.95rem;
+  transition: opacity 0.2s, transform 0.1s; white-space: nowrap;
+}
+.search-btn:hover { opacity: 0.9; transform: scale(1.02); }
+.search-btn:active { transform: scale(0.98); }
+.search-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.search-hint { font-size: 12px; color: var(--text3); margin-top: 10px; text-align: center; }
+.search-hint code { color: var(--accent); background: rgba(79,142,247,0.08); padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+
+/* ── Loader ── */
+.loader { display: none; justify-content: center; padding: 40px; }
+.loader.active { display: flex; }
+.spinner {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Result Card ── */
+#result { display: none; }
+#result.visible { display: block; animation: fadeUp 0.4s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.result-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden; margin: 0 0 24px;
+}
+
+.result-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 28px 28px 24px; border-bottom: 1px solid var(--border);
+  flex-wrap: wrap; gap: 16px;
+}
+.result-number-info { display: flex; align-items: center; gap: 16px; }
+.result-flag { font-size: 36px; }
+.result-number-text {}
+.result-number-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-bottom: 4px; }
+.result-number-value { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--text); }
+.result-country { font-size: 13px; color: var(--text2); margin-top: 3px; }
+
+.reputation-badge {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: 30px; font-weight: 700; font-size: 0.95rem;
+}
+.reputation-badge.red { background: rgba(255,77,109,0.1); border: 1px solid rgba(255,77,109,0.2); color: var(--red); }
+.reputation-badge.orange { background: rgba(255,152,0,0.1); border: 1px solid rgba(255,152,0,0.2); color: var(--orange); }
+.reputation-badge.yellow { background: rgba(255,209,102,0.1); border: 1px solid rgba(255,209,102,0.2); color: var(--yellow); }
+.reputation-badge.green { background: rgba(34,208,122,0.1); border: 1px solid rgba(34,208,122,0.2); color: var(--green); }
+.reputation-badge.gray { background: rgba(107,114,128,0.1); border: 1px solid rgba(107,114,128,0.2); color: var(--gray); }
+
+/* Stats Grid */
+.stats-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  padding: 24px 28px; gap: 16px; border-bottom: 1px solid var(--border);
+}
+@media (max-width: 500px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+
+.stat-item {}
+.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-bottom: 6px; }
+.stat-value { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--text); }
+.stat-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+/* Spam Meter */
+.meter-section { padding: 24px 28px; border-bottom: 1px solid var(--border); }
+.meter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.meter-label { font-size: 13px; font-weight: 600; color: var(--text2); }
+.meter-pct { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; }
+.meter-track {
+  height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;
+}
+.meter-fill {
+  height: 100%; border-radius: 4px; transition: width 1s ease;
+  background: linear-gradient(90deg, var(--green), var(--red));
+}
+
+/* Breakdown Bars */
+.breakdown-section { padding: 24px 28px; border-bottom: 1px solid var(--border); }
+.breakdown-title { font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.06em; }
+.breakdown-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.breakdown-icon { font-size: 14px; width: 20px; text-align: center; }
+.breakdown-name { font-size: 13px; color: var(--text2); width: 110px; }
+.breakdown-bar-track { flex: 1; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
+.breakdown-bar-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+.breakdown-count { font-size: 13px; color: var(--text3); width: 30px; text-align: right; font-family: 'Syne', sans-serif; font-weight: 700; }
+
+/* ── Report Form ── */
+.report-section { padding: 28px; }
+.report-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 6px; }
+.report-subtitle { font-size: 13px; color: var(--text2); margin-bottom: 20px; }
+.report-types { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.report-type-btn {
+  padding: 8px 16px; border-radius: 8px; border: 1.5px solid var(--border);
+  background: none; color: var(--text2); font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; gap: 6px;
+}
+.report-type-btn:hover { border-color: rgba(79,142,247,0.4); color: var(--text); background: rgba(79,142,247,0.05); }
+.report-type-btn.selected { border-color: var(--accent); color: var(--accent); background: rgba(79,142,247,0.08); }
+.report-type-btn.selected-red { border-color: var(--red); color: var(--red); background: rgba(255,77,109,0.08); }
+.report-type-btn.selected-orange { border-color: var(--orange); color: var(--orange); background: rgba(255,152,0,0.08); }
+.report-type-btn.selected-green { border-color: var(--green); color: var(--green); background: rgba(34,208,122,0.08); }
+
+.comment-input {
+  width: 100%; background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px;
+  color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px;
+  padding: 12px 16px; resize: none; outline: none; transition: border-color 0.2s; margin-bottom: 14px;
+}
+.comment-input:focus { border-color: rgba(79,142,247,0.4); }
+.comment-input::placeholder { color: var(--text3); }
+
+.submit-btn {
+  width: 100%; padding: 14px; border-radius: 10px; border: none; cursor: pointer;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.95rem;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.submit-btn:hover { opacity: 0.9; }
+.submit-btn:active { transform: scale(0.99); }
+.submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(60px);
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px 24px; font-size: 14px; font-weight: 500; z-index: 1000;
+  transition: transform 0.3s ease, opacity 0.3s ease; opacity: 0; white-space: nowrap;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.success { border-color: rgba(34,208,122,0.3); color: var(--green); }
+.toast.error { border-color: rgba(255,77,109,0.3); color: var(--red); }
+.toast.info { border-color: rgba(79,142,247,0.3); color: var(--accent); }
+
+/* ── Stats Section ── */
+.global-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin: 48px 0; }
+@media (max-width: 600px) { .global-stats { grid-template-columns: 1fr 1fr; } }
+
+.gstat-card {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 24px 20px; text-align: center;
+}
+.gstat-icon { font-size: 24px; margin-bottom: 12px; }
+.gstat-val { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+.gstat-label { font-size: 12px; color: var(--text3); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* ── How It Works ── */
+.section-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.6rem; margin-bottom: 8px; }
+.section-sub { color: var(--text2); font-size: 14px; margin-bottom: 32px; }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 60px; }
+@media (max-width: 600px) { .steps { grid-template-columns: 1fr; } }
+.step-card {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px;
+  position: relative;
+}
+.step-num {
+  font-family: 'Syne', sans-serif; font-size: 0.75rem; font-weight: 800;
+  color: var(--accent); background: rgba(79,142,247,0.08); border: 1px solid rgba(79,142,247,0.15);
+  width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px;
+}
+.step-icon { font-size: 24px; margin-bottom: 12px; }
+.step-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; }
+.step-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+/* ── Error State ── */
+.error-state {
+  text-align: center; padding: 40px; color: var(--text2);
+  background: var(--surface2); border: 1px solid rgba(255,77,109,0.15); border-radius: var(--radius);
+  margin-bottom: 24px;
+}
+.error-state .error-icon { font-size: 32px; margin-bottom: 12px; }
+.error-state p { font-size: 14px; color: var(--red); }
+
+/* ── Footer ── */
+footer {
+  border-top: 1px solid var(--border); padding: 32px 0; text-align: center;
+  color: var(--text3); font-size: 13px; margin-top: 40px;
+}
+footer a { color: var(--text2); text-decoration: none; }
+footer a:hover { color: var(--text); }
+.privacy-note {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(34,208,122,0.05); border: 1px solid rgba(34,208,122,0.1);
+  color: var(--text3); font-size: 11px; padding: 6px 14px; border-radius: 20px; margin-bottom: 16px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .hero { padding: 48px 0 40px; }
+  .result-header { padding: 20px; }
+  .stats-grid { padding: 20px; }
+  .meter-section, .breakdown-section, .report-section { padding: 20px; }
+  .result-number-value { font-size: 1.1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow1"></div>
+<div class="bg-glow2"></div>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo">
+      <div class="logo-icon">🛡️</div>
+      <span class="logo-text">Phone<span>Guard</span></span>
+    </a>
+    <span class="nav-badge">Community Powered</span>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-tag">
+      <span>🔍</span> Real-Time Reputation Check
+    </div>
+    <h1>Is this number<br><span>spam or safe?</span></h1>
+    <p>Lookup any phone number for spam reports, scam alerts, and caller reputation — powered by community reports.</p>
+
+    <!-- Search -->
+    <div class="search-wrapper">
+      <div class="search-box">
+        <span class="search-flag" id="flagEmoji">📞</span>
+        <input
+          type="tel"
+          id="phoneInput"
+          class="search-input"
+          placeholder="+91 98765 43210 or +1 800 555 0100"
+          autocomplete="off"
+          maxlength="20"
+        />
+        <button class="search-btn" onclick="lookupPhone()" id="searchBtn">
+          Check Number
+        </button>
+      </div>
+      <p class="search-hint">Enter with country code — e.g. <code>+91</code> for India, <code>+1</code> for USA</p>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader" id="loader">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Error -->
+  <div id="errorState" style="display:none;">
+    <div class="error-state">
+      <div class="error-icon">⚠️</div>
+      <p id="errorMsg">Something went wrong</p>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div id="result">
+    <div class="result-card">
+
+      <!-- Header -->
+      <div class="result-header">
+        <div class="result-number-info">
+          <div class="result-flag" id="r-flag">🌍</div>
+          <div class="result-number-text">
+            <div class="result-number-label">Phone Number</div>
+            <div class="result-number-value" id="r-number">—</div>
+            <div class="result-country" id="r-country">Unknown Country</div>
+          </div>
+        </div>
+        <div class="reputation-badge gray" id="r-badge">
+          <span id="r-badge-icon">❓</span>
+          <span id="r-badge-label">Unknown</span>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-label">Total Reports</div>
+          <div class="stat-value" id="r-total">0</div>
+          <div class="stat-sub">community reports</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Spam Score</div>
+          <div class="stat-value" id="r-score">0%</div>
+          <div class="stat-sub">probability</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Last Seen</div>
+          <div class="stat-value" id="r-last">—</div>
+          <div class="stat-sub" id="r-last-sub">no reports yet</div>
+        </div>
+      </div>
+
+      <!-- Spam Meter -->
+      <div class="meter-section">
+        <div class="meter-header">
+          <span class="meter-label">🎯 Spam Probability Meter</span>
+          <span class="meter-pct" id="r-meter-pct">0%</span>
+        </div>
+        <div class="meter-track">
+          <div class="meter-fill" id="r-meter-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Breakdown -->
+      <div class="breakdown-section">
+        <div class="breakdown-title">Report Breakdown</div>
+        <div id="r-breakdown">
+          <div class="breakdown-item">
+            <span class="breakdown-icon">🚨</span>
+            <span class="breakdown-name">Spam</span>
+            <div class="breakdown-bar-track"><div class="breakdown-bar-fill" id="bar-spam" style="width:0%;background:var(--red)"></div></div>
+            <span class="breakdown-count" id="cnt-spam">0</span>
+          </div>
+          <div class="breakdown-item">
+            <span class="breakdown-icon">💀</span>
+            <span class="breakdown-name">Scam</span>
+            <div class="breakdown-bar-track"><div class="breakdown-bar-fill" id="bar-scam" style="width:0%;background:#ff3860"></div></div>
+            <span class="breakdown-count" id="cnt-scam">0</span>
+          </div>
+          <div class="breakdown-item">
+            <span class="breakdown-icon">📢</span>
+            <span class="breakdown-name">Telemarketing</span>
+            <div class="breakdown-bar-track"><div class="breakdown-bar-fill" id="bar-tele" style="width:0%;background:var(--orange)"></div></div>
+            <span class="breakdown-count" id="cnt-tele">0</span>
+          </div>
+          <div class="breakdown-item">
+            <span class="breakdown-icon">🤖</span>
+            <span class="breakdown-name">Robocall</span>
+            <div class="breakdown-bar-track"><div class="breakdown-bar-fill" id="bar-robo" style="width:0%;background:var(--yellow)"></div></div>
+            <span class="breakdown-count" id="cnt-robo">0</span>
+          </div>
+          <div class="breakdown-item">
+            <span class="breakdown-icon">✅</span>
+            <span class="breakdown-name">Safe</span>
+            <div class="breakdown-bar-track"><div class="breakdown-bar-fill" id="bar-safe" style="width:0%;background:var(--green)"></div></div>
+            <span class="breakdown-count" id="cnt-safe">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report Form -->
+      <div class="report-section">
+        <div class="report-title">📝 Submit a Report</div>
+        <div class="report-subtitle">Help the community — is this number spam, safe, or something else?</div>
+        <div class="report-types">
+          <button class="report-type-btn" data-type="spam" onclick="selectType(this,'red')">🚨 Spam</button>
+          <button class="report-type-btn" data-type="scam" onclick="selectType(this,'red')">💀 Scam</button>
+          <button class="report-type-btn" data-type="telemarketing" onclick="selectType(this,'orange')">📢 Telemarketing</button>
+          <button class="report-type-btn" data-type="robocall" onclick="selectType(this,'orange')">🤖 Robocall</button>
+          <button class="report-type-btn" data-type="safe" onclick="selectType(this,'green')">✅ Safe</button>
+          <button class="report-type-btn" data-type="unknown" onclick="selectType(this,'')">❓ Unknown</button>
+        </div>
+        <textarea class="comment-input" id="commentInput" rows="3" placeholder="Optional: Describe what happened (max 200 characters)..." maxlength="200"></textarea>
+        <button class="submit-btn" onclick="submitReport()" id="submitBtn">Submit Report</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Global Stats -->
+  <div class="global-stats" id="globalStats">
+    <div class="gstat-card">
+      <div class="gstat-icon">📊</div>
+      <div class="gstat-val" id="g-total">—</div>
+      <div class="gstat-label">Total Reports</div>
+    </div>
+    <div class="gstat-card">
+      <div class="gstat-icon">📱</div>
+      <div class="gstat-val" id="g-numbers">—</div>
+      <div class="gstat-label">Numbers Checked</div>
+    </div>
+    <div class="gstat-card">
+      <div class="gstat-icon">🚨</div>
+      <div class="gstat-val" id="g-highrisk">—</div>
+      <div class="gstat-label">High Risk Numbers</div>
+    </div>
+  </div>
+
+  <!-- How it Works -->
+  <div>
+    <div class="section-title">How PhoneGuard Works</div>
+    <div class="section-sub">Community-driven caller reputation in 3 steps</div>
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-icon">🔍</div>
+        <div class="step-title">Enter the Number</div>
+        <div class="step-desc">Type any phone number with country code. We support numbers from 50+ countries worldwide.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-icon">📡</div>
+        <div class="step-title">Instant Analysis</div>
+        <div class="step-desc">We check community reports, spam score, and country detection instantly in real-time.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-icon">📝</div>
+        <div class="step-title">Report & Protect</div>
+        <div class="step-desc">Submit your own report to help others. Your reports help the whole community stay safe.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="privacy-note">
+      🔒 Privacy First — We never store actual phone numbers. Only anonymized hashes are saved.
+    </div>
+    <p>PhoneGuard &copy; 2025 — Community-powered caller reputation. No phone numbers are stored in plain text.</p>
+    <p style="margin-top:8px;">All data is anonymized &bull; Reports are aggregated &bull; <a href="#">Privacy Policy</a> &bull; <a href="#">API Docs</a></p>
+  </div>
+</footer>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API_BASE = 'http://localhost:5000/api';
+let currentPhone = '';
+let selectedType = '';
+
+// ── Country Flags ────────────────────────────────────────────────
+const countryFlags = {
+  IN:'🇮🇳',US:'🇺🇸',GB:'🇬🇧',CA:'🇨🇦',AU:'🇦🇺',DE:'🇩🇪',FR:'🇫🇷',IT:'🇮🇹',
+  ES:'🇪🇸',BR:'🇧🇷',MX:'🇲🇽',JP:'🇯🇵',KR:'🇰🇷',CN:'🇨🇳',RU:'🇷🇺',ZA:'🇿🇦',
+  NG:'🇳🇬',PK:'🇵🇰',BD:'🇧🇩',ID:'🇮🇩',PH:'🇵🇭',TH:'🇹🇭',VN:'🇻🇳',TR:'🇹🇷',
+  SA:'🇸🇦',AE:'🇦🇪',EG:'🇪🇬',AR:'🇦🇷',CO:'🇨🇴',CL:'🇨🇱',PE:'🇵🇪',NL:'🇳🇱',
+  BE:'🇧🇪',SE:'🇸🇪',NO:'🇳🇴',DK:'🇩🇰',FI:'🇫🇮',PL:'🇵🇱',PT:'🇵🇹',GR:'🇬🇷',
+  SG:'🇸🇬',MY:'🇲🇾',NZ:'🇳🇿',IL:'🇮🇱',HK:'🇭🇰',TW:'🇹🇼'
+};
+
+// ── Phone Input Flag Preview ─────────────────────────────────────
+document.getElementById('phoneInput').addEventListener('input', function(e) {
+  const val = e.target.value.trim();
+  // Simple country code detection for flag preview
+  const prefixMap = {'+1':'🇺🇸','+91':'🇮🇳','+44':'🇬🇧','+61':'🇦🇺','+81':'🇯🇵',
+    '+49':'🇩🇪','+33':'🇫🇷','+86':'🇨🇳','+7':'🇷🇺','+55':'🇧🇷','+52':'🇲🇽',
+    '+82':'🇰🇷','+39':'🇮🇹','+34':'🇪🇸','+27':'🇿🇦','+92':'🇵🇰','+880':'🇧🇩',
+    '+62':'🇮🇩','+63':'🇵🇭','+66':'🇹🇭','+84':'🇻🇳','+90':'🇹🇷','+966':'🇸🇦',
+    '+971':'🇦🇪','+20':'🇪🇬','+64':'🇳🇿','+65':'🇸🇬','+60':'🇲🇾','+31':'🇳🇱',
+    '+46':'🇸🇪','+47':'🇳🇴','+45':'🇩🇰','+48':'🇵🇱','+32':'🇧🇪'
+  };
+  let found = '📞';
+  for (const [prefix, flag] of Object.entries(prefixMap)) {
+    if (val.startsWith(prefix)) { found = flag; break; }
+  }
+  document.getElementById('flagEmoji').textContent = found;
+});
+
+document.getElementById('phoneInput').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') lookupPhone();
+});
+
+// ── Lookup ───────────────────────────────────────────────────────
+async function lookupPhone() {
+  const input = document.getElementById('phoneInput').value.trim();
+  if (!input) { showToast('Please enter a phone number', 'error'); return; }
+
+  currentPhone = input;
+  selectedType = '';
+  clearTypeSelection();
+
+  setLoading(true);
+  hideResult();
+  hideError();
+
+  try {
+    const resp = await fetch(`${API_BASE}/lookup/${encodeURIComponent(input)}`);
+    const data = await resp.json();
+
+    if (!resp.ok) {
+      showError(data.error || 'Failed to look up number');
+      return;
+    }
+
+    renderResult(input, data);
+  } catch (err) {
+    showError('Cannot connect to server. Make sure the backend is running on port 5000.');
+  } finally {
+    setLoading(false);
+  }
+}
+
+function renderResult(phone, data) {
+  const flag = countryFlags[data.countryCode] || '🌍';
+  const breakdown = data.breakdown || {};
+  const total = data.totalReports || 0;
+
+  document.getElementById('r-flag').textContent = flag;
+  document.getElementById('r-number').textContent = phone;
+  document.getElementById('r-country').textContent =
+    (data.countryName || 'Unknown') + (data.phonePrefix ? ` (${data.phonePrefix})` : '');
+
+  // Badge
+  const rep = data.reputation || { label: 'Unknown', color: 'gray', icon: '❓' };
+  const badge = document.getElementById('r-badge');
+  badge.className = `reputation-badge ${rep.color}`;
+  document.getElementById('r-badge-icon').textContent = rep.icon;
+  document.getElementById('r-badge-label').textContent = rep.label;
+
+  // Stats
+  document.getElementById('r-total').textContent = total;
+  document.getElementById('r-score').textContent = (data.spamProbability || 0) + '%';
+
+  if (data.recentActivity) {
+    const d = new Date(data.recentActivity);
+    document.getElementById('r-last').textContent = d.toLocaleDateString('en-IN', {month:'short',day:'numeric'});
+    document.getElementById('r-last-sub').textContent = 'last report';
+  } else {
+    document.getElementById('r-last').textContent = '—';
+    document.getElementById('r-last-sub').textContent = 'no reports yet';
+  }
+
+  // Meter
+  const pct = data.spamProbability || 0;
+  document.getElementById('r-meter-pct').textContent = pct + '%';
+  setTimeout(() => { document.getElementById('r-meter-fill').style.width = pct + '%'; }, 100);
+
+  // Breakdown bars
+  const types = ['spam','scam','tele','robo','safe'];
+  const keys  = ['spam','scam','telemarketing','robocall','safe'];
+  keys.forEach((key, i) => {
+    const count = breakdown[key] || 0;
+    const id = types[i];
+    document.getElementById(`cnt-${id}`).textContent = count;
+    const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+    setTimeout(() => { document.getElementById(`bar-${id}`).style.width = pct + '%'; }, 150 + i * 80);
+  });
+
+  showResult();
+}
+
+// ── Report ───────────────────────────────────────────────────────
+function selectType(btn, colorClass) {
+  clearTypeSelection();
+  selectedType = btn.dataset.type;
+  btn.classList.add(colorClass ? `selected-${colorClass}` : 'selected');
+}
+
+function clearTypeSelection() {
+  document.querySelectorAll('.report-type-btn').forEach(b => {
+    b.className = 'report-type-btn';
+  });
+}
+
+async function submitReport() {
+  if (!currentPhone) { showToast('Please search a number first', 'error'); return; }
+  if (!selectedType) { showToast('Please select a report type', 'error'); return; }
+
+  const comment = document.getElementById('commentInput').value.trim();
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  try {
+    const resp = await fetch(`${API_BASE}/report`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: currentPhone, reportType: selectedType, comment })
+    });
+    const data = await resp.json();
+
+    if (!resp.ok) {
+      showToast(data.error || 'Failed to submit report', 'error');
+      return;
+    }
+
+    showToast('✅ Report submitted! Thank you.', 'success');
+    document.getElementById('commentInput').value = '';
+    clearTypeSelection();
+    selectedType = '';
+    // Refresh stats
+    setTimeout(() => lookupPhone(), 800);
+  } catch (err) {
+    showToast('Cannot connect to server', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Submit Report';
+  }
+}
+
+// ── Global Stats ─────────────────────────────────────────────────
+async function loadGlobalStats() {
+  try {
+    const resp = await fetch(`${API_BASE}/stats`);
+    if (!resp.ok) return;
+    const data = await resp.json();
+    document.getElementById('g-total').textContent = (data.totalReports || 0).toLocaleString();
+    document.getElementById('g-numbers').textContent = (data.totalNumbers || 0).toLocaleString();
+    document.getElementById('g-highrisk').textContent = (data.highRiskNumbers || 0).toLocaleString();
+  } catch { /* backend not connected — show dashes */ }
+}
+
+// ── UI Helpers ───────────────────────────────────────────────────
+function setLoading(on) {
+  document.getElementById('loader').classList.toggle('active', on);
+  document.getElementById('searchBtn').disabled = on;
+  document.getElementById('searchBtn').textContent = on ? 'Checking…' : 'Check Number';
+}
+
+function showResult() { document.getElementById('result').style.display = 'block'; document.getElementById('result').classList.add('visible'); }
+function hideResult() { document.getElementById('result').style.display = 'none'; document.getElementById('result').classList.remove('visible'); }
+function showError(msg) {
+  document.getElementById('errorMsg').textContent = msg;
+  document.getElementById('errorState').style.display = 'block';
+}
+function hideError() { document.getElementById('errorState').style.display = 'none'; }
+
+let toastTimer;
+function showToast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.classList.remove('show'); }, 3200);
+}
+
+// ── Init ─────────────────────────────────────────────────────────
+loadGlobalStats();
+</script>
+</body>
+</html>
