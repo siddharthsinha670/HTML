@@ -2,10 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0d0f1c">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zenith — Habit Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -144,10 +141,7 @@ a { text-decoration: none; color: inherit; }
   inset: 0 auto 0 0;
   z-index: 200;
   transition: transform 0.3s var(--ease), background 0.4s var(--ease);
-  /* No backdrop-filter by default to prevent mobile blur */
-}
-@media (min-width: 769px) {
-  .sidebar { backdrop-filter: blur(20px); }
+  backdrop-filter: blur(20px);
 }
 
 .sidebar-brand {
@@ -314,25 +308,15 @@ a { text-decoration: none; color: inherit; }
 /* ---------- Topbar ---------- */
 .topbar {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(13,15,28,0.97);
+  background: rgba(13,15,28,0.85);
   border-bottom: 1px solid var(--border);
   padding: 0 32px;
   height: 66px;
   display: flex; align-items: center; gap: 14px;
-  /* backdrop-filter only on desktop to avoid mobile blur bug */
+  backdrop-filter: blur(24px);
   transition: background 0.4s var(--ease);
 }
-@supports (backdrop-filter: blur(1px)) {
-  @media (min-width: 769px) {
-    .topbar { background: rgba(13,15,28,0.85); backdrop-filter: blur(24px); }
-  }
-}
-[data-theme="light"] .topbar { background: rgba(240,242,250,0.97); }
-@supports (backdrop-filter: blur(1px)) {
-  @media (min-width: 769px) {
-    [data-theme="light"] .topbar { background: rgba(240,242,250,0.9); backdrop-filter: blur(24px); }
-  }
-}
+[data-theme="light"] .topbar { background: rgba(240,242,250,0.9); }
 .topbar-left { flex: 1; display: flex; align-items: baseline; gap: 10px; }
 .topbar-title {
   font-family: var(--font-display);
@@ -1044,14 +1028,14 @@ canvas { max-width: 100%; }
    ============================================================ */
 .modal-backdrop {
   position: fixed; inset: 0;
-  background: rgba(7,8,15,0.88);
+  background: rgba(7,8,15,0.85);
+  backdrop-filter: blur(8px);
   z-index: 900;
   display: flex; align-items: center; justify-content: center;
   padding: 20px;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.28s var(--ease);
-  /* No backdrop-filter — causes blur on mobile */
 }
 .modal-backdrop.open {
   opacity: 1;
@@ -1262,9 +1246,9 @@ select.form-input option { background: var(--bg-card); }
 .sidebar-overlay {
   display: none;
   position: fixed; inset: 0;
-  background: rgba(7,8,15,0.75);
+  background: rgba(7,8,15,0.7);
   z-index: 150;
-  /* NO backdrop-filter here — causes blur bug on mobile */
+  backdrop-filter: blur(4px);
 }
 
 /* ============================================================
@@ -1301,268 +1285,36 @@ select.form-input option { background: var(--bg-card); }
 .mb-16 { margin-bottom: 16px; }
 
 /* ============================================================
-   RESPONSIVE — FULLY MOBILE OPTIMIZED
+   RESPONSIVE
    ============================================================ */
-
-/* Tablet */
 @media (max-width: 1100px) {
   .stats-grid { grid-template-columns: repeat(2,1fr); }
   .analytics-grid { grid-template-columns: 1fr; }
   .settings-grid { grid-template-columns: 1fr; }
 }
-
-/* Mobile — 768px and below */
 @media (max-width: 768px) {
-  :root { --sidebar-w: 270px; }
-
-  /* Canvas particles — reduce on mobile for performance */
-  #bg-canvas { opacity: 0.15; }
-
-  /* Sidebar slides in from left, hidden by default */
-  .sidebar {
-    transform: translateX(-100%);
-    background: var(--bg-surface);
-    /* Solid bg — no blur on mobile */
-    box-shadow: 4px 0 32px rgba(0,0,0,0.6);
-  }
+  :root { --sidebar-w: 252px; }
+  .sidebar { transform: translateX(-100%); }
   .sidebar.open { transform: translateX(0); }
-
-  /* Overlay visible class */
-  .sidebar-overlay { display: block; visibility: hidden; opacity: 0; transition: opacity 0.3s ease, visibility 0.3s ease; }
-  .sidebar-overlay.visible { visibility: visible; opacity: 1; }
-
-  /* Main content full width */
+  .sidebar-overlay { display: block; }
+  .sidebar-overlay.visible { display: block; }
   .main-content { margin-left: 0; }
-
-  /* Topbar */
-  .topbar {
-    padding: 0 14px;
-    height: 58px;
-    gap: 10px;
-    background: var(--bg-surface) !important;
-  }
-  .topbar-left { flex: 1; min-width: 0; }
-  .topbar-title { font-size: 16px; }
-  .topbar-date  { display: none; }
-  .menu-hamburger { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 8px; }
-  .search-wrap  { display: none; }
-  .add-btn      { padding: 8px 14px; font-size: 13px; gap: 5px; }
-  .add-btn span:first-child { font-size: 16px; }
-
-  /* Pages — extra bottom padding for bottom nav */
-  .page { padding: 16px 14px 90px; }
-
-  /* Stats grid — 2 cols on mobile */
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 18px;
-  }
-  .stat-card { padding: 16px 14px; }
-  .stat-val   { font-size: 28px; }
-  .stat-label { font-size: 10px; }
-  .stat-meta  { font-size: 11px; }
-  .stat-icon  { font-size: 22px; top: 14px; right: 14px; }
-  .stat-trend { font-size: 10px; }
-
-  /* Habits grid — single column */
-  .habits-grid { grid-template-columns: 1fr; gap: 12px; }
-  .habit-card  { padding: 16px; }
-  .habit-emoji-wrap { width: 42px; height: 42px; font-size: 19px; }
-  .habit-name  { font-size: 14px; }
-
-  /* Bigger touch target for check button */
-  .check-btn {
-    width: 44px; height: 44px;
-    font-size: 19px;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .icon-btn {
-    width: 36px; height: 36px;
-    font-size: 15px;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  /* Filter bar */
-  .filter-bar {
-    gap: 6px;
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    padding-bottom: 4px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .filter-bar::-webkit-scrollbar { display: none; }
-  .filter-chip { flex-shrink: 0; padding: 7px 14px; font-size: 12px; }
-
-  /* Section header */
-  .section-header { margin-bottom: 16px; gap: 8px; }
-  .section-title  { font-size: 22px; }
-  .section-sub    { font-size: 12px; }
-  .section-actions { width: 100%; }
-  .section-actions .cal-select { flex: 1; }
-
-  /* Calendar */
-  .cal-controls {
-    padding: 12px 14px;
-    gap: 8px;
-    border-radius: var(--radius-md);
-  }
-  .cal-month-display { font-size: 16px; }
-  .cal-jump { display: none; }
-  .cal-day  { min-height: 64px; padding: 6px 4px; }
-  .cal-day-num { font-size: 11px; width: 22px; height: 22px; }
-  .cal-dot  { width: 6px; height: 6px; }
-  .cal-day-score { font-size: 9px; bottom: 3px; right: 4px; }
-  .cal-wd   { padding: 8px 2px; font-size: 9.5px; }
-  .cal-habit-selector {
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding-bottom: 2px;
-  }
-  .cal-habit-selector::-webkit-scrollbar { display: none; }
-  .cal-habit-chip { flex-shrink: 0; }
-
-  /* Analytics */
-  .analytics-grid { grid-template-columns: 1fr; gap: 14px; }
-  .chart-card     { padding: 16px 14px; }
-  .streaks-visual { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .streak-item    { padding: 14px 12px; }
-
-  /* Settings */
-  .settings-grid { grid-template-columns: 1fr; gap: 14px; }
-  .settings-card { padding: 18px 16px; }
-
-  /* Form row — stack on mobile */
+  .topbar { padding: 0 16px; }
+  .menu-hamburger { display: flex; }
+  .search-wrap { display: none; }
+  .page { padding: 20px 16px 60px; }
+  .stats-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+  .habits-grid { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
-
-  /* Modal — full screen bottom sheet on mobile */
-  .modal-backdrop {
-    align-items: flex-end;
-    padding: 0;
-  }
-  .modal {
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-    max-height: 92vh;
-    padding: 24px 20px;
-    width: 100%;
-    max-width: 100%;
-  }
-
-  /* Toast — full width bottom */
-  .toast-container {
-    bottom: 80px;
-    right: 12px;
-    left: 12px;
-  }
-  .toast {
-    min-width: unset;
-    max-width: 100%;
-    width: 100%;
-  }
-
-  /* Emoji picker — better scroll */
-  .emoji-picker {
-    max-height: 110px;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Data buttons */
-  .data-btn { padding: 12px 14px; }
+  .cal-jump { display: none; }
+  .analytics-grid { grid-template-columns: 1fr; }
+  .settings-grid { grid-template-columns: 1fr; }
 }
-
-/* Small phones */
-@media (max-width: 400px) {
-  .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .stat-val   { font-size: 24px; }
-  .page       { padding: 12px 10px 90px; }
-  .topbar     { padding: 0 10px; }
-  .add-btn span:last-child { display: none; } /* only show + icon */
-  .streaks-visual { grid-template-columns: 1fr 1fr; }
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .stat-val { font-size: 30px; }
+  .modal { padding: 22px 18px; }
 }
-
-/* ============================================================
-   BOTTOM NAV BAR — Mobile only
-   ============================================================ */
-.bottom-nav {
-  display: none;
-}
-@media (max-width: 768px) {
-  .bottom-nav {
-    display: flex;
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: 300;
-    background: var(--bg-surface);
-    border-top: 1px solid var(--border);
-    padding: 6px 0 max(6px, env(safe-area-inset-bottom));
-    -webkit-tap-highlight-color: transparent;
-  }
-  .bn-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    padding: 6px 4px;
-    cursor: pointer;
-    border: none;
-    background: none;
-    color: var(--text-muted);
-    font-size: 11px;
-    font-family: var(--font-body);
-    font-weight: 500;
-    transition: color 0.18s ease;
-    position: relative;
-  }
-  .bn-item.active { color: var(--accent-v); }
-  .bn-item.active .bn-ico-wrap {
-    background: var(--glow-v);
-    border-radius: 14px;
-    transform: translateY(-2px);
-  }
-  .bn-ico-wrap {
-    width: 44px; height: 28px;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: 14px;
-    transition: all 0.22s var(--ease-spring);
-    position: relative;
-  }
-  .bn-ico { font-size: 20px; line-height: 1; }
-  .bn-label { font-size: 10px; letter-spacing: 0.2px; }
-  .bn-badge {
-    position: absolute;
-    top: -2px; right: 2px;
-    background: var(--accent-r);
-    color: #fff;
-    font-size: 8px;
-    font-weight: 800;
-    padding: 1px 4px;
-    border-radius: 8px;
-    min-width: 14px;
-    text-align: center;
-    line-height: 1.4;
-  }
-}
-
-/* Fix: prevent body scroll when sidebar open on mobile */
-body.sidebar-open { overflow: hidden; }
-
-/* Fix: -webkit-overflow-scrolling for iOS scroll */
-.sidebar-nav, .page { -webkit-overflow-scrolling: touch; }
-
-/* Fix: tap highlight globally */
-* { -webkit-tap-highlight-color: transparent; }
-
-/* Fix: iOS input zoom prevention */
-@media (max-width: 768px) {
-  input, select, textarea { font-size: 16px !important; }
-  .form-label { font-size: 11px; }
-}
-
 </style>
 </head>
 
@@ -1999,35 +1751,6 @@ body.sidebar-open { overflow: hidden; }
 <!-- Toast Container -->
 <div class="toast-container" id="toast-container"></div>
 
-<!-- ================================================
-     BOTTOM NAV BAR (Mobile Only)
-     ================================================ -->
-<nav class="bottom-nav" id="bottom-nav">
-  <button class="bn-item active" data-page="dashboard" onclick="navigate('dashboard')">
-    <div class="bn-ico-wrap">
-      <span class="bn-ico">🏠</span>
-      <span class="bn-badge" id="bn-badge" style="display:none">0</span>
-    </div>
-    <span class="bn-label">Home</span>
-  </button>
-  <button class="bn-item" data-page="calendar" onclick="navigate('calendar')">
-    <div class="bn-ico-wrap"><span class="bn-ico">📅</span></div>
-    <span class="bn-label">Calendar</span>
-  </button>
-  <button class="bn-item" data-page="analytics" onclick="navigate('analytics')">
-    <div class="bn-ico-wrap"><span class="bn-ico">📊</span></div>
-    <span class="bn-label">Analytics</span>
-  </button>
-  <button class="bn-item" data-page="settings" onclick="navigate('settings')">
-    <div class="bn-ico-wrap"><span class="bn-ico">⚙️</span></div>
-    <span class="bn-label">Settings</span>
-  </button>
-  <button class="bn-item" data-page="data" onclick="navigate('data')">
-    <div class="bn-ico-wrap"><span class="bn-ico">💾</span></div>
-    <span class="bn-label">Data</span>
-  </button>
-</nav>
-
 <!-- ============================================================
      JAVASCRIPT
      ============================================================ -->
@@ -2127,15 +1850,8 @@ function setLiveDate() {
 function navigate(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  // Update bottom nav
-  document.querySelectorAll('.bn-item').forEach(n => n.classList.remove('active'));
-
   document.getElementById('page-' + page).classList.add('active');
-  document.querySelector(`[data-page="${page}"]`)?.classList.add('active');
-
-  // Also activate the bottom nav item
-  const bnItem = document.querySelector(`.bn-item[data-page="${page}"]`);
-  if (bnItem) bnItem.classList.add('active');
+  document.querySelector(`[data-page="${page}"]`).classList.add('active');
 
   const titles = {
     dashboard: 'Dashboard', calendar: 'Calendar',
@@ -2157,15 +1873,12 @@ function navigate(page) {
 function toggleSidebar() {
   const sb = document.getElementById('sidebar');
   const ov = document.getElementById('sidebar-overlay');
-  const isOpen = sb.classList.contains('open');
   sb.classList.toggle('open');
   ov.classList.toggle('visible');
-  document.body.classList.toggle('sidebar-open', !isOpen);
 }
 function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebar-overlay').classList.remove('visible');
-  document.body.classList.remove('sidebar-open');
 }
 
 /* ============================================================
@@ -2368,12 +2081,6 @@ function updateBadge() {
   const done  = Object.keys(completions[today] || {}).filter(id => habits.find(h=>h.id===id)).length;
   const rem   = Math.max(0, habits.length - done);
   document.getElementById('badge-today').textContent = rem;
-  // Bottom nav badge
-  const bnBadge = document.getElementById('bn-badge');
-  if (bnBadge) {
-    bnBadge.textContent = rem;
-    bnBadge.style.display = rem > 0 ? 'block' : 'none';
-  }
 }
 
 /* ============================================================
@@ -3080,8 +2787,7 @@ function initBgCanvas() {
     }
   }
 
-  const isMobile = window.innerWidth <= 768;
-  for (let i=0; i< (isMobile ? 30 : 80); i++) particles.push(new Particle());
+  for (let i=0; i<80; i++) particles.push(new Particle());
 
   function loop() {
     ctx.clearRect(0,0,W,H);
