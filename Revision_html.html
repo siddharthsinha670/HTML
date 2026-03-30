@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HTML Revision Page" >
+    <title>Html Revision</title> <!--tittle in the browser tab-->
+
+    <!--Internal css-->
+    <style>
+        body {font-family: Arial};
+        .box {border: 1px solid black; padding: 10px; margin: 10px;}
+    </style>
+</head>
+<body>
+    <!--Heading tags-->
+    <h1>Main Heading</h1>
+    <h2>Sub Heading</h2>
+    <h3>Smaller Heading</h3>
+
+    <!--Paragraph & Text formatting-->
+    <p>This is a <b>bold</b>,<i>italic</i>,<u>underline</u>text.</p>
+    <P>H<sub>2</sub>0 and 10<sup>2</sup></P>
+
+    <!--line break & horizontal line-->
+    Line 1 <br> Line 2
+    <hr>
+
+    <!--Links-->
+    <a herf="https://google.com" target="_blanks">Open google</a>
+
+    <!--Image-->
+    <imag src="https://via.placeholder.com/150" alt="sample image">
+
+     <!--Lists-->   
+     <h3>Ordered lists</h3>
+     <ol>
+        <li>item 1</li>
+        <li>Item 2</li>
+     </ol>
+
+     <h3>Unordered Lists</h3>
+     <ul>
+        <li>item A</li>
+        <li>item B</li>
+     </ul>
+
+     <!--Table-->
+     <h3>Table Example</h3>
+     <table border="1">
+        <tr>
+            <th>Name</th>
+            <th>Age</th>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>20</td>
+        </tr>
+     </table>
+
+     <!--Form-->
+     <h3>Form Example</h3>
+     <form>
+        Name: <input type="Text"><br><br>
+        Password: <input type="Password"><br><br>
+
+        Gender:
+        <input type="radio" name="gender"> Male
+        <input type="radio" name="gender"> Female <br><br>
+
+        Skills:
+        <input  type="checkbox"> HTML
+        <input type="checkbox"> CSS <br><br>
+
+        Country:
+        <select>
+            <option>India</option>
+            <option>USA</option>
+        </select><br><br>
+
+        Message:<br>
+        <textaarea></textaarea><br><br>
+
+        <input type="Submit" value="Submit"
+     </form>
+    
+     <!--Div and Span-->
+     <div class="box">
+        This is  a <span style="color:red";">div + span</span> example.
+     </div>
+
+     <!--Semantic tags-->
+     <header>Header Section</header>
+     <nav>Navigation Bar</nav>
+     <section>Main Section</section>
+     <article>Article Conntent</article>
+     <aside>Sidebar</aside>
+     <footer>Footer Section</footer>
+
+     <!--Multimedia-->
+     <h3>Audio</h3>
+     <audio controls>
+        <source src="sample.mp3" type="audio/mpeg">
+     </audio>
+
+     <h3>Video</h3>
+     <video width="300" controls>
+        <source src="sample.mp4" type="video/mp4">
+     </video>
+
+     <!--Button-->
+     <button onclick="alert('Button clicked')">click me</button>
+
+     <!--Scripts-->
+     <script>
+        cconsole.log('javascript connected');
+     </script>
+</body>
+</html>
