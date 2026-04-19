@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siddhrth Sinha | Portfolio</title>
+
+    <!--Basic styling for professinal Look-->
+    <style>
+        body{
+            font-family: Arial,sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header{
+            background:#222;
+            color : white;
+            padding:15px;
+            position : sticky;
+            top: 0;
+        }
+        nav ul{
+            display :flex;
+            justify-content: center;
+            list-style: none;
+            padding:0;
+        }
+        nav ul li{
+            margin:0 15px;
+        }
+        nav ul li a{
+            color: white;
+            text-decoration: none;
+        }
+        section{
+            padding:40px;
+            background: white;
+            margin:20px;
+            border-radius: 10px;
+        }
+        h1,h2{
+            text-align: center;
+        }
+        .project
+        {
+            display: grid;
+            grid-template-columns: repeat(auto-fit,mainmax(250px,1fx));
+            gap:20px;
+        }
+        .card{
+            background:#fafafa;
+            padding:15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        table{
+            width:100%;
+            border-collapse: collapse;
+        }
+        table,th,td{
+            border: 1px solid #add;
+            padding:10px;
+            text-align: center;
+        }
+        form input,for, textarea,from select{
+            width:100%;
+            padding:10px;
+            margin: 10px 0;
+        }
+        button{
+            padding:10px 20px;
+            background: #222;
+            color: white;
+            border:none;
+            cursor:pointer;
+        }
+        footer{
+            background :#222;
+            color: white;
+            text-align:center;
+            padding: 10px;
+        } 
+
+    </style>
+</header>
+<body>
+
+    <!--HEADER-->
+   <header> 
+    <h1>Siddharth Sinha</h1>
+    <nav>
+        <ul>
+            <li><a href="#about">About</a></li>
+            <li><a herf="#Skills">Skills</a></li>
+            <li><a herf="#projects">Projects</a></li>
+            <li><a herf="#Contact">Contact</a></li>
+        </ul>
+    </nav>
+   </header> 
+
+   <!--ABOUT-->
+   <section id="about">
+    <h2>About ME</h2>
+    <p>I am a passionate developer Learning Web Development, C++, and problem solving. I focus on buililding strong fundamental and real world project</p>
+
+    <figure>
+        <img src="e:\MY DOCUMENT\MY PHOTO.jpg" alt="Profile Image">
+        <figcaption>My Profile</figcaption>
+    </figure>
+
+    <!--SKILLS-->
+    <section id="Skills">
+        <h2>Skills</h2>
+        <table>
+            <tr>
+                <th>Skill</th>
+                <th>Level</th>
+            </tr>
+            <tr>
+                <td>HTML</td>
+                <td>intermediate</td>
+
+            </tr>
+            <tr>
+                <td>c++</td>
+                <td>intermediate</td>
+            </tr>
+            <tr>
+                <td>Python</td>
+                <td>intermediate</td>
+            </tr>
+        </table>
+        <h3>Progress</h3>
+        <progress value="60" max="100"></progress>        
+    </section>
+    <!--Projects-->
+    <section id="Projects">
+        <h2>Projects</h2>
+
+        <div class="Projects">
+            <div class="card">
+                <h3>Portfolio Website</h3>
+                <p>Personal website showcasing my skills.</p>
+            </div>
+            <div class="cards">
+                <h3>OOPS Concepts</h3>
+                <p>C++ project covering OOP concepts</p>
+
+            </div>
+            
+        </div>
+    </section>
+
+    <!--Media-->
+    <section>
+        <h2>Media</h2>
+        <video width="300" controls>
+            <source src="video.mp4" type="video/mp4">
+
+        </video>
+    </section>
+    <!--CONTACT-->
+    <section id="contact">
+        <h2>Contact Me</h2>
+
+        <form>
+            <label>Name</label>
+            <input type="test" palaceholder="Enter your name">
+
+            <label>Email</label>
+            <input type="email" palceholder="Enter your email">
+
+            <label>Message</label>
+            <textarea rows="4"><</textarea>
+
+            <level>Choose Topic</level>
+            <select>
+                <option>Project</option>
+                <option>collaboration</option>
+            </select>
+            <button type="submit">Send</button>
+        </form>
+    </section>
+    <!--Footer-->
+    <footer>
+        <p>&copy; 2026 Siddharth sinha | All Rights Reversed</p>
+    </footer>
+</body>
+</html>
